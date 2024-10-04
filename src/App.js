@@ -1,39 +1,40 @@
+import React, { useState } from 'react';
 import Header from './components/Header';
-import PageHome from './components/PageHome';
-import CardItem from './components/CardItem';
-import './App.css';
-import FeedBack from './components/Feedback';
-import menu1 from './img/menu1.jpg';
-import menu2 from './img/menu2.jpg';
-import menu3 from './img/menu3.jpg';
-import menu4 from './img/menu4.jpg';
-import { useState } from 'react';
+import ProductList from './components/ProductList.js';
+import Cart from './components/Cart';
+import FeedBack from './components/Feedback.js';
+import PageHome from './components/PageHome.js';
+import pizza1 from './img/pizza1.jpg';
+const items = [
+  {
+    id: 1,
+    image: 'https://i.imgur.com/V3AzIpS.jpeg',
+    name: 'Margherita Pizza',
+    price: '24.00'
+  },
+  {
+    id: 2,
+    image: 'https://i.imgur.com/V3AzIpS.jpeg',
+    name: 'Mushroom Pizza',
+    price: '25.00'
+  },
+  {
+    id: 3,
+    image: 'https://i.imgur.com/V3AzIpS.jpeg',
+    name: 'Hawaiian Pizza',
+    price: '30.00'
+  },
+  {
+    id: 4,
+    image: 'https://i.imgur.com/V3AzIpS.jpeg',
+    name: 'Pesto Pizza',
+    price: '30.00'
+  }
+];
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-  const item = [
-    {
-      id: 1,
-      name: 'Margherita Pizza',
-      price: 40
-    },
-    {
-      id: 2,
-      name: 'Margherita Pizza',
-      price: 40
-    },
-    {
-      id: 3,
-      name: 'Margherita Pizza',
-      price: 40
-    },
-    {
-      id: 4,
-      name: 'Margherita Pizza',
-      price: 40
-    }
-  ];
 
   // Xử lý khi người dùng bấm nút "Buy"
   const handleBuy = item => {
@@ -57,11 +58,15 @@ function App() {
       .filter(cartItem => cartItem.quantity > 0);
     setCartItems(updatedCartItems);
   };
+
   return (
     <div>
-      <Header></Header>
+      <Header cartCount={cartItems.reduce((total, item) => total + item.quantity, 0)} onCartClick={() => setShowPopup(true)} />
       <PageHome></PageHome>
-      <CardItem></CardItem>
+      <ProductList items={items} onBuy={handleBuy} />
+      {showPopup && (
+        <Cart cartItems={cartItems} onClose={() => setShowPopup(false)} onIncrement={handleIncrement} onDecrement={handleDecrement} />
+      )}
       <FeedBack></FeedBack>
     </div>
   );

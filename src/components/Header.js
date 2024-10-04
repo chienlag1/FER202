@@ -1,4 +1,4 @@
-function Header() {
+function Header({ cartCount, onCartClick }) {
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-body-rgb(72,72,72) container ">
@@ -40,7 +40,9 @@ function Header() {
               </svg>
             </button>
           </form>
-          <button className="btn btn-primary">Cart Item</button>
+          <button onClick={onCartClick} className="btn btn-primary">
+            Cart Item ({cartCount})
+          </button>
         </div>
       </nav>
     </div>
