@@ -8,7 +8,7 @@ function CardItem({ item, onBuy }) {
           <div className="card position-relative">
             <img src={item.image} className="card-img-top" alt="Card image" />
             <div className="card-body">
-              <h5 className="card-title">Margherita Pizza</h5>
+              <h5 className="card-title">{item.name}</h5>
               <p className="card-text">
                 <p className="card-text">${item.price}</p>
               </p>
