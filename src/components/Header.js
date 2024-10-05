@@ -1,3 +1,5 @@
+import Badge from 'react-bootstrap/Badge';
+
 function Header({ cartCount, onCartClick }) {
   return (
     <div>
@@ -41,7 +43,7 @@ function Header({ cartCount, onCartClick }) {
             </button>
           </form>
           <button onClick={onCartClick} className="btn btn-primary">
-            Cart Item ({cartCount})
+            Cart Item <Badge bg="secondary">{cartCount}</Badge>
           </button>
         </div>
       </nav>
