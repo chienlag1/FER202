@@ -1,6 +1,6 @@
 import Badge from 'react-bootstrap/Badge';
 
-function Header({ cartCount, onCartClick }) {
+function Header({ cartCount, onCartClick, onLoginClick }) {
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-body-rgb(72,72,72) container ">
@@ -44,6 +44,9 @@ function Header({ cartCount, onCartClick }) {
           </form>
           <button onClick={onCartClick} className="btn btn-primary">
             Cart Item <Badge bg="secondary">{cartCount}</Badge>
+          </button>
+          <button onClick={onLoginClick} className="btn btn-primary m-2">
+            Login
           </button>
         </div>
       </nav>

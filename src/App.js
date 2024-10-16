@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from './components/Header';
 import ProductList from './components/ProductList.js';
 import Cart from './components/Cart';
 import FeedBack from './components/Feedback.js';
 import PageHome from './components/PageHome.js';
-import pizza1 from './img/pizza1.jpg';
+import Login from './components/Login.js';
+import { createContext } from 'react';
+
 const items = [
   {
     id: 1,
@@ -31,12 +33,48 @@ const items = [
     price: '30.00'
   }
 ];
+export const loggedInUser = createContext();
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [quantityProduct, setQuantityProduct] = useState(0);
+  const [products, setProducts] = useState();
+  const [user, setUser] = useState();
 
-  // Xử lý khi người dùng bấm nút "Buy"
+  const sumQuantityProduct = arr => {
+    return arr.reduce((quantity, item) => {
+      return (quantity = quantity + item.count);
+    }, 0);
+  };
+  useEffect(() => {
+    fetch('https://api-demo-4gqb.onrender.com/products')
+      .then(res => res.json())
+      .then(data => setProducts(data.data))
+      .catch(error => console.log(error));
+  }, []);
+
+  useEffect(() => {
+    const quantity = sumQuantityProduct(cartItems);
+    setQuantityProduct(quantity);
+  }, [cartItems]);
+
+  const addProductToCart = product => {
+    if (!product) return null;
+    if (cartItems.indexOf(product) !== -1) {
+      const index = cartItems.indexOf(product);
+      const arr = [...cartItems];
+      arr[index].count = arr[index].count + 1;
+      setCartItems(arr);
+    } else {
+      const arr = [...cartItems];
+      product.count = 1;
+      arr.push(product);
+      setCartItems(arr);
+    }
+  };
+
   const handleBuy = item => {
     const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
     if (existingItem) {
@@ -59,16 +97,42 @@ function App() {
     setCartItems(updatedCartItems);
   };
 
+  const handleLoginSubmit = async ({ email, password }) => {
+    try {
+      const response = await fetch('https://api-demo-4gqb.onrender.com/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      if (!response.ok) {
+        throw new Error('Login failed. Please check your credentials.');
+      }
+      const data = await response.json();
+      console.log('Login successful:', data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
-    <div>
-      <Header cartCount={cartItems.reduce((total, item) => total + item.quantity, 0)} onCartClick={() => setShowPopup(true)} />
+    <loggedInUser.Provider value={user}>
+      <Header
+        handleOnClick={quantityProduct}
+        cartCount={cartItems.reduce((total, item) => total + item.quantity, 0)}
+        onCartClick={() => setShowPopup(true)}
+        onLoginClick={() => setShowLogin(true)}
+      />
+      <Login handleLoginSubmit={handleLoginSubmit} onClose={() => setShowLogin(false)}></Login>
       <PageHome></PageHome>
       <ProductList items={items} onBuy={handleBuy} />
       {showPopup && (
         <Cart cartItems={cartItems} onClose={() => setShowPopup(false)} onIncrement={handleIncrement} onDecrement={handleDecrement} />
       )}
+
       <FeedBack></FeedBack>
-    </div>
+    </loggedInUser.Provider>
   );
 }
 
