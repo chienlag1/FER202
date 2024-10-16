@@ -16,7 +16,7 @@ function CardItem({ item, onBuy }) {
                 Buy
               </div>
             </div>
-            <div class="d-inline ps-2 pe-2 bg-warning position-absolute rounded  ">SALE</div>
+            <div className="d-inline ps-2 pe-2 bg-warning position-absolute rounded  ">SALE</div>
           </div>
         </div>
       </div>
