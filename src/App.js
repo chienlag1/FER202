@@ -1,53 +1,35 @@
+import pizza1 from './img/pizza1.jpg';
+import pizza2 from './img/pizza2.jpg';
+import pizza3 from './img/pizza3.jpg';
+import pizza4 from './img/pizza4.jpg';
+import pizza5 from './img/pizza5.jpg';
 import React, { useEffect, useState } from 'react';
 import Header from './components/Header';
-import ProductList from './components/ProductList.js';
-import Cart from './components/Cart';
-import FeedBack from './components/Feedback.js';
-import PageHome from './components/PageHome.js';
-import Login from './components/Login.js';
 import { createContext } from 'react';
+import PageHome from './components/PageHome.js';
 
-const items = [
-  {
-    id: 1,
-    image: 'https://i.imgur.com/V3AzIpS.jpeg',
-    name: 'Margherita Pizza',
-    price: '24.00'
-  },
-  {
-    id: 2,
-    image: 'https://i.imgur.com/V3AzIpS.jpeg',
-    name: 'Mushroom Pizza',
-    price: '25.00'
-  },
-  {
-    id: 3,
-    image: 'https://i.imgur.com/V3AzIpS.jpeg',
-    name: 'Hawaiian Pizza',
-    price: '30.00'
-  },
-  {
-    id: 4,
-    image: 'https://i.imgur.com/V3AzIpS.jpeg',
-    name: 'Pesto Pizza',
-    price: '30.00'
-  }
-];
+import ProductList from './components/ProductList.js';
+import FeedBack from './components/Feedback.js';
+import CardItem from './components/CardItem.js';
+import Cart from './components/Cart.js';
+import Login from './components/Login.js';
 export const loggedInUser = createContext();
 
 function App() {
-  const [cartItems, setCartItems] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
+  const images = [pizza1, pizza2, pizza3, pizza4, pizza5];
+  const [cart, setCart] = useState([]);
   const [quantityProduct, setQuantityProduct] = useState(0);
   const [products, setProducts] = useState();
   const [user, setUser] = useState();
+  console.log(user);
 
   const sumQuantityProduct = arr => {
     return arr.reduce((quantity, item) => {
       return (quantity = quantity + item.count);
     }, 0);
   };
+
+  // fetch API lấy dữ liệu list of products
   useEffect(() => {
     fetch('https://api-demo-4gqb.onrender.com/products')
       .then(res => res.json())
@@ -56,82 +38,77 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const quantity = sumQuantityProduct(cartItems);
+    const quantity = sumQuantityProduct(cart);
     setQuantityProduct(quantity);
-  }, [cartItems]);
+  }, [cart]);
 
   const addProductToCart = product => {
     if (!product) return null;
-    if (cartItems.indexOf(product) !== -1) {
-      const index = cartItems.indexOf(product);
-      const arr = [...cartItems];
+    if (cart.indexOf(product) !== -1) {
+      const index = cart.indexOf(product);
+      const arr = [...cart];
       arr[index].count = arr[index].count + 1;
-      setCartItems(arr);
+      setCart(arr);
     } else {
-      const arr = [...cartItems];
+      const arr = [...cart];
       product.count = 1;
       arr.push(product);
-      setCartItems(arr);
+      setCart(arr);
     }
   };
 
-  const handleBuy = item => {
-    const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
-    if (existingItem) {
-      setCartItems(cartItems.map(cartItem => (cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem)));
-    } else {
-      setCartItems([...cartItems, { ...item, quantity: 1 }]);
-    }
+  const handleIncrease = product => {
+    const index = cart.indexOf(product);
+    const arr = [...cart];
+    arr[index].count = arr[index].count + 1;
+    setCart(arr);
   };
 
-  // Tăng số lượng sản phẩm trong giỏ hàng
-  const handleIncrement = item => {
-    setCartItems(cartItems.map(cartItem => (cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem)));
+  const handleDecrease = product => {
+    const index = cart.indexOf(product);
+    const arr = [...cart];
+    arr[index].count = arr[index].count - 1;
+
+    const newArr = arr.filter(product => {
+      return product.count !== 0;
+    });
+    setCart(newArr);
   };
 
-  // Giảm số lượng sản phẩm trong giỏ hàng
-  const handleDecrement = item => {
-    const updatedCartItems = cartItems
-      .map(cartItem => (cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity - 1 } : cartItem))
-      .filter(cartItem => cartItem.quantity > 0);
-    setCartItems(updatedCartItems);
+  const handleBuy = product => {
+    addProductToCart(product);
   };
 
-  const handleLoginSubmit = async ({ email, password }) => {
+  const handleLoginSubmit = async form => {
     try {
-      const response = await fetch('https://api-demo-4gqb.onrender.com/users/login', {
+      const res = await fetch('https://api-demo-4gqb.onrender.com/users/login', {
         method: 'POST',
+        body: JSON.stringify(form),
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
+        }
       });
-      if (!response.ok) {
-        throw new Error('Login failed. Please check your credentials.');
-      }
-      const data = await response.json();
-      console.log('Login successful:', data);
-    } catch (err) {
-      console.log(err);
+      const data = await res.json();
+      console.log('data', data);
+      setUser(data.data);
+    } catch (error) {
+      console.log(error);
     }
   };
-
   return (
     <loggedInUser.Provider value={user}>
-      <Header
-        handleOnClick={quantityProduct}
-        cartCount={cartItems.reduce((total, item) => total + item.quantity, 0)}
-        onCartClick={() => setShowPopup(true)}
-        onLoginClick={() => setShowLogin(true)}
-      />
-      <Login handleLoginSubmit={handleLoginSubmit} onClose={() => setShowLogin(false)}></Login>
-      <PageHome></PageHome>
-      <ProductList items={items} onBuy={handleBuy} />
-      {showPopup && (
-        <Cart cartItems={cartItems} onClose={() => setShowPopup(false)} onIncrement={handleIncrement} onDecrement={handleDecrement} />
-      )}
+      <Header handleOnClick={quantityProduct} />
+      <PageHome
+        images={images}
+        products={products}
+        title="Neapolian Pizza"
+        description="If you are looking for a traditional pizza the Neapolian is the best option!"
+      ></PageHome>
+      <ProductList label="Our Menu" handleBuy={handleBuy} products={products}></ProductList>
 
+      <Cart cart={cart} handleDecrease={handleDecrease} handleIncrease={handleIncrease}></Cart>
       <FeedBack></FeedBack>
+      <Login handleLoginSubmit={handleLoginSubmit}></Login>
     </loggedInUser.Provider>
   );
 }
