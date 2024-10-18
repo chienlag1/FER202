@@ -1,50 +1,64 @@
-import React, { useState } from 'react';
-import { Button, Modal } from 'react-bootstrap';
+import React from 'react';
 
-function Cart({ cartItems, onClose, onIncrement, onDecrement }) {
-  const [show, setShow] = useState(true);
-
-  const handleClose = () => {
-    setShow(false);
-    onClose();
-  };
-
+function Cart({ cart, handleIncrease, handleDecrease }) {
   return (
-    <>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Your Cart</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {cartItems.length === 0 ? (
-            <p>No items in cart</p>
-          ) : (
-            <ul className="list-group">
-              {cartItems.map((item, index) => (
-                <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                  <span>
-                    {item.name}: {item.quantity} x ${item.price} = {item.quantity * item.price}$
-                  </span>
-                  <div>
-                    <Button variant="btn btn-success" onClick={() => onIncrement(item)} className="mx-2">
-                      +
-                    </Button>
-                    <Button variant="btn btn-danger" onClick={() => onDecrement(item)} disabled={item.quantity === 1}>
-                      -
-                    </Button>
+    <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div className="modal-dialog">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title" id="exampleModalLabel">
+              Cart
+            </h5>
+            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div className="modal-body container">
+            {cart.map(product => {
+              return (
+                <div className="row cart-item" key={product.id}>
+                  <div className="card mb-3 col-md-4 cart-item-card">
+                    <div className="row no-gutters cart-item-detail ">
+                      <div className="col-md-3">
+                        <img src={product.image} alt="..." />
+                      </div>
+                      <div className="col-md-9">
+                        <div className="card-body">
+                          <p className="card-title">{product.title}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="btn btn-danger" onClick={handleClose}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+                  <div className="cart-item-addition-quantity col-md-3">{product.count}</div>
+                  <div className="cart-item-addition col-md-3">
+                    <button
+                      className="cart-item-addition-increase btn btn-primary"
+                      onClick={() => {
+                        handleIncrease(product);
+                      }}
+                    >
+                      {' '}
+                      +{' '}
+                    </button>
+                    <button
+                      className="cart-item-addition-decrease btn btn-danger"
+                      onClick={() => {
+                        handleDecrease(product);
+                      }}
+                    ></button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
